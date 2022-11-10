@@ -1,4 +1,4 @@
 /env
 __pychache__/
 .DS-Store
-
+setenv.sh
