@@ -1,7 +1,6 @@
-from typing import NamedTuple
-
 import requests
 import config
+from typing import NamedTuple
 
 
 class Coordinates(NamedTuple):
@@ -15,7 +14,7 @@ class Address(NamedTuple):
     house_for_geocoder: str
 
 
-def _get_response_geocoder(address: Address) -> dict:
+def get_response_geocoder(address: Address) -> dict:
     url = config.GEOCODER_URL.format(
         city_for_geocoder=address.city_for_geocoder,
         street_for_geocoder=address.street_for_geocoder,
@@ -30,5 +29,4 @@ def parse_coordination(response_geocoder_output: dict) -> Coordinates:
         longitude=response_geocoder_output['result']['items'][0]['point']['lon']
     )
 
-# f = Address("Москва", "Садовническая", "19")
-# print(_parse_coordination(_get_response_geocoder(f)))
+
