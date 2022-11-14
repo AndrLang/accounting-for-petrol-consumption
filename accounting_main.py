@@ -22,8 +22,7 @@ def main():
         coordinates_source,
         coordinates_target
     )))
-    print(total_km)
-
+    return total_km
 
 
 if __name__ == "__main__":
