@@ -17,6 +17,7 @@ def get_response_distance_matrix(coordinates_source: Coordinates,
                 "lon": coordinates_target.longitude
             },
         ],
+        "type": "shortest",
         "sources": [0],
         "targets": [1]
     }

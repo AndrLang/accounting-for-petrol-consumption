@@ -22,7 +22,8 @@ def main():
         coordinates_source,
         coordinates_target
     )))
-    return total_km
+    # return total_km
+    print(total_km)  # for production change to 'return total_km'
 
 
 if __name__ == "__main__":
