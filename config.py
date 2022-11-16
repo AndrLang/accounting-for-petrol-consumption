@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+
 USE_ROUNDED_COORDS = False
 GEOCODER_API = os.getenv("GEOCODER_API")
 GEOCODER_URL = (
@@ -20,5 +21,8 @@ DISTANCE_MATRIX_URL = (
 )
 
 
-
+host = '127.0.0.1'
+user = 'postgres'
+password = os.getenv("POSTGRES")
+db_name = 'petrol_consumption'
 
