@@ -11,7 +11,7 @@ def create_table():
         CREATE TABLE auto(
             id serial PRIMARY KEY,
             number varchar(255) NOT NULL,
-            consumption_on_100km numeric NOT NULL
+            consumption_per_100km numeric NOT NULL
         )
         """,
         """
