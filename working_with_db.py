@@ -43,8 +43,8 @@ def create_table():
             city_arrival_id integer references city(id),
             street_arrival_id integer references street(id),
             house_arrival_id integer references house(id),
-            km_total integer NOT NULL,
-            consumption_of_petrol integer NOT NULL
+            km_total numeric NOT NULL,
+            consumption_of_petrol numeric NOT NULL
         )
         """,
         """
@@ -56,7 +56,7 @@ def create_table():
             city_arrival_id integer references city(id),
             street_arrival_id integer references street(id),
             house_arrival_id integer references house(id),
-            km_between integer NOT NULL
+            km_between numeric NOT NULL
         )
         """)
     connection = None
