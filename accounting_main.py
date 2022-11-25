@@ -8,7 +8,7 @@ import psycopg2
 
 
 class SourceTripData(NamedTuple):
-    data: str
+    date_of_trip: str
     auto_number: str
     city_departure: str
     street_departure: str
@@ -19,8 +19,8 @@ class SourceTripData(NamedTuple):
 
 
 class TripDataIntoDB(NamedTuple):
+    date_of_trip: str
     auto_number: str
-    date: str
     city_departure: str
     street_departure: str
     house_departure: str
@@ -32,7 +32,7 @@ class TripDataIntoDB(NamedTuple):
 
 
 def get_source_trip_data() -> SourceTripData:
-    data = input('Введите дату в формате "2022-09-30": ')
+    date_of_trip = input('Введите дату в формате "2022-09-30": ')
     auto_number = input('Введите гос.номер автомобиля в формате "a000aa99": ')
 
     city_departure = input('Введите город (отправление): ')
@@ -44,7 +44,7 @@ def get_source_trip_data() -> SourceTripData:
     house_arrival = input('Введите номер дома (назначение): ')
 
     return SourceTripData(
-        data=data,
+        date_of_trip=date_of_trip,
         auto_number=auto_number,
         city_departure=city_departure,
         street_departure=street_departure,
@@ -75,7 +75,7 @@ def get_trip_data_to_sent_into_db(source_data: SourceTripData) -> TripDataIntoDB
     )))
     consumption_of_petrol_trip = round((km_trip * 7.4 / 100), 2)
     return TripDataIntoDB(
-        date=source_data.data,
+        date_of_trip=source_data.date_of_trip,
         auto_number=source_data.auto_number,
         city_departure=source_data.city_departure,
         street_departure=source_data.street_departure,
@@ -90,41 +90,12 @@ def get_trip_data_to_sent_into_db(source_data: SourceTripData) -> TripDataIntoDB
 def send_data_into_db(trip_data: TripDataIntoDB) -> None:
     data_trip = list(trip_data)
     print(data_trip)
+
     command_get_id_auto = "SELECT id FROM auto WHERE number = (%s)"
     command_get_id_city = "SELECT id FROM city WHERE name = (%s)"
     command_get_id_street = "SELECT id FROM street WHERE name = (%s)"
     command_get_id_house = "SELECT id FROM house WHERE number = (%s)"
 
-    #
-    # index_del_in_list_main = {0, 1, 8, 9}
-    # list_arguments_for_table_route = \
-    #     [x for i, x in enumerate(data_trip) if i not in index_del_in_list_main]
-    # print(list_arguments_for_table_route)
-    #
-    # command_into_route = (
-    #     """
-    #     INSERT into route(
-    #         city_departure_id,
-    #         street_departure_id,
-    #         house_departure_id,
-    #         city_arrival_id,
-    #         street_arrival_id,
-    #         house_arrival_id,
-    #         km_between
-    #     )
-    #     VALUES (%s, %s, %s, %s, %s, %s, %s)""", list_arguments_for_table_route)
-    # command_into_route = (
-    #     """
-    #     INSERT into route(
-    #         city_departure_id,
-    #         street_departure_id,
-    #         house_departure_id,
-    #         city_arrival_id,
-    #         street_arrival_id,
-    #         house_arrival_id,
-    #         km_between
-    #     )
-    #         VALUES (%s, %s, %s, %s, %s, %s, %s)""", list_arguments_for_table_route)
     connection = None
     try:
         connection = psycopg2.connect(
@@ -135,7 +106,7 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
         )
         cursor = connection.cursor()
 
-        cursor.execute(command_get_id_auto, (data_trip[0],))
+        cursor.execute(command_get_id_auto, (data_trip[1],))
         number_id_into_db = cursor.fetchone()
         print(number_id_into_db)
 
@@ -158,8 +129,9 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
         cursor.execute(command_get_id_house, (data_trip[7],))
         house_id_arrival = cursor.fetchone()
         print(house_id_arrival)
+
         agr_for_command_into_trip = [
-            data_trip[1],
+            data_trip[0],
             number_id_into_db,
             city_id_departure,
             street_id_departure,
@@ -167,8 +139,8 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
             city_id_arrival,
             street_id_arrival,
             house_id_arrival,
-            data_trip[7],
-            data_trip[8]
+            data_trip[8],
+            data_trip[9]
         ]
         command_into_trip = (
             """
@@ -186,14 +158,27 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
                 )
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
         )
+        index_del_from_data_trip = {0, 1, 9}
+        agr_for_command_into_db_table_route = \
+            [x for i, x in enumerate(agr_for_command_into_trip) if i not in index_del_from_data_trip]
+        print(agr_for_command_into_db_table_route)
 
+        command_into_db_table_route = (
+            """
+            INSERT into route(
+                city_departure_id,
+                street_departure_id,
+                house_departure_id,
+                city_arrival_id,
+                street_arrival_id,
+                house_arrival_id,
+                km_between
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)""")
         cursor.execute(command_into_trip, agr_for_command_into_trip)
+        cursor.execute(command_into_db_table_route, agr_for_command_into_db_table_route)
         cursor.close()
         connection.commit()
-
-        # cursor.execute(command_into_route)
-        # cursor.close()
-        # connection.commit()
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -204,9 +189,7 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
 
 
 def main():
-    data = send_data_into_db(get_trip_data_to_sent_into_db(get_source_trip_data()))
-    # print(data)
-    # print(list(data))
+    send_data_into_db(get_trip_data_to_sent_into_db(get_source_trip_data()))
 
 
 if __name__ == "__main__":
