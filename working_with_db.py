@@ -19,39 +19,15 @@ def create_table():
             id serial PRIMARY KEY,
             date date NOT NULL,
             number_id integer references auto(id),
-<<<<<<< HEAD
             city_departure varchar(255) NOT NULL,
             street_departure varchar(255) NOT NULL,
             house_departure varchar(255) NOT NULL,
             city_arrival varchar(255) NOT NULL,
             street_arrival varchar(255) NOT NULL,
             house_arrival varchar(255) NOT NULL,
-            km_total numeric NOT NULL,
+            km_trip numeric NOT NULL,
             consumption_of_petrol numeric NOT NULL
         )
-=======
-            city_departure_id integer references city(id),
-            street_departure_id integer references street(id),
-            house_departure_id integer references house(id),
-            city_arrival_id integer references city(id),
-            street_arrival_id integer references street(id),
-            house_arrival_id integer references house(id),
-            km_total integer NOT NULL,
-            consumption_of_petrol integer NOT NULL
-        )
-        """,
-        """
-        CREATE TABLE route(
-            id serial PRIMARY KEY,
-            city_departure_id integer references city(id),
-            street_departure_id integer references street(id),
-            house_departure_id integer references house(id),
-            city_arrival_id integer references city(id),
-            street_arrival_id integer references street(id),
-            house_arrival_id integer references house(id),
-            km_between integer NOT NULL
-        )
->>>>>>> parent of 3eaa6fb (fix: change type of column)
         """)
 
     connection = None
