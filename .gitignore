@@ -3,3 +3,4 @@ __pychache__/
 .DS-Store
 .env
 module_for_test.py
+README.md

@@ -5,6 +5,32 @@ from config import host, user, password, db_name
 load_dotenv()
 
 
+def create_database():
+    command = (
+        """
+        CREATE DATABASE petrol_consumption
+        """
+    )
+    try:
+        connection = psycopg2.connect(
+            host=host,
+            user=user,
+            password=password,
+            database='postgres'
+        )
+        connection.autocommit = True
+        cursor = connection.cursor()
+        cursor.execute(command)
+        cursor.close()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if connection:
+            connection.close()
+            print('[INFO] PostgreSQL connection closed')
+
+
 def create_table():
     commands = (
         """
@@ -30,7 +56,6 @@ def create_table():
         )
         """)
 
-    connection = None
     try:
         connection = psycopg2.connect(
             host=host,
@@ -39,10 +64,10 @@ def create_table():
             database=db_name
         )
         cursor = connection.cursor()
+        connection.autocommit = True
         for command in commands:
             cursor.execute(command)
         cursor.close()
-        connection.commit()
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -53,4 +78,5 @@ def create_table():
 
 
 if __name__ == '__main__':
+    create_database()
     create_table()
