@@ -15,50 +15,21 @@ def create_table():
         )
         """,
         """
-        CREATE TABLE city(
-            id serial PRIMARY KEY,
-            name varchar(255) NOT NULL
-        )
-        """,
-        """
-        CREATE TABLE street(
-            id serial PRIMARY KEY,
-            name varchar(255) NOT NULL
-        )
-        """,
-        """
-        CREATE TABLE house(
-            id serial PRIMARY KEY,
-            number varchar(255) NOT NULL
-        )  
-        """,
-        """
         CREATE TABLE trip(
             id serial PRIMARY KEY,
             date date NOT NULL,
             number_id integer references auto(id),
-            city_departure_id integer references city(id),
-            street_departure_id integer references street(id),
-            house_departure_id integer references house(id),
-            city_arrival_id integer references city(id),
-            street_arrival_id integer references street(id),
-            house_arrival_id integer references house(id),
+            city_departure varchar(255) NOT NULL,
+            street_departure varchar(255) NOT NULL,
+            house_departure varchar(255) NOT NULL,
+            city_arrival varchar(255) NOT NULL,
+            street_arrival varchar(255) NOT NULL,
+            house_arrival varchar(255) NOT NULL,
             km_total numeric NOT NULL,
             consumption_of_petrol numeric NOT NULL
         )
-        """,
-        """
-        CREATE TABLE route(
-            id serial PRIMARY KEY,
-            city_departure_id integer references city(id),
-            street_departure_id integer references street(id),
-            house_departure_id integer references house(id),
-            city_arrival_id integer references city(id),
-            street_arrival_id integer references street(id),
-            house_arrival_id integer references house(id),
-            km_between numeric NOT NULL
-        )
         """)
+
     connection = None
     try:
         connection = psycopg2.connect(
