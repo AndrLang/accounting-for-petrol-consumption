@@ -5,6 +5,7 @@ from api_distance_matrix_service import get_response_distance_matrix, \
 from typing import NamedTuple
 from config import host, user, password, db_name
 import psycopg2
+import sys
 
 
 class SourceTripData(NamedTuple):
@@ -39,55 +40,50 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
     command_get_id_auto = "SELECT id FROM auto WHERE number = %(auto_number)s"
 
     connection = None
-    try:
-        connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name
-        )
-        cursor = connection.cursor()
-        cursor.execute(command_get_id_auto, {'auto_number': trip_data.auto_number})
-        number_id_into_db = cursor.fetchone()
+    connection = psycopg2.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=db_name
+    )
+    cursor = connection.cursor()
+    cursor.execute(command_get_id_auto, {'auto_number': trip_data.auto_number})
+    number_id_into_db = cursor.fetchone()
 
-        agr_for_command_into_trip = [
-            trip_data.date_of_trip,
-            number_id_into_db,
-            trip_data.city_departure,
-            trip_data.street_departure,
-            trip_data.house_departure,
-            trip_data.city_arrival,
-            trip_data.street_arrival,
-            trip_data.house_arrival,
-            trip_data.km_trip,
-            trip_data.consumption_of_petrol_trip
-        ]
-        command_into_trip = (
-            """
-                INSERT into trip(
-                    date,
-                    number_id,
-                    city_departure,
-                    street_departure,
-                    house_departure,
-                    city_arrival,
-                    street_arrival,
-                    house_arrival,
-                    km_trip,
-                    consumption_of_petrol
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
-        )
-        cursor.execute(command_into_trip, agr_for_command_into_trip)
-        cursor.close()
-        connection.commit()
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if connection:
-            connection.close()
-            print('[INFO] PostgreSQL connection closed')
+    agr_for_command_into_trip = [
+        trip_data.date_of_trip,
+        number_id_into_db,
+        trip_data.city_departure,
+        trip_data.street_departure,
+        trip_data.house_departure,
+        trip_data.city_arrival,
+        trip_data.street_arrival,
+        trip_data.house_arrival,
+        trip_data.km_trip,
+        trip_data.consumption_of_petrol_trip
+    ]
+    command_into_trip = (
+        """
+            INSERT into trip(
+                date,
+                number_id,
+                city_departure,
+                street_departure,
+                house_departure,
+                city_arrival,
+                street_arrival,
+                house_arrival,
+                km_trip,
+                consumption_of_petrol
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+    )
+    cursor.execute(command_into_trip, agr_for_command_into_trip)
+    cursor.close()
+    connection.commit()
+    if connection:
+        connection.close()
+        print('[INFO] PostgreSQL connection closed')
 
 
 def get_trip_data_to_sent_into_db(source_data: SourceTripData) -> TripDataIntoDB:
@@ -147,4 +143,14 @@ def get_source_trip_data() -> SourceTripData:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (Exception, psycopg2.DatabaseError):
+        print(sys.exc_info()[0], sys.exc_info()[1])
+    except KeyboardInterrupt:
+        print('Run the program again')
+    else:
+        print('Trip data has been send to the database')
+
+
+

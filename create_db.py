@@ -1,3 +1,4 @@
+import sys
 import psycopg2
 from dotenv import load_dotenv
 from config import host, user, password, db_name
@@ -11,24 +12,20 @@ def create_database():
         CREATE DATABASE petrol_consumption
         """
     )
-    try:
-        connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database='postgres'
-        )
-        connection.autocommit = True
-        cursor = connection.cursor()
-        cursor.execute(command)
-        cursor.close()
+    connection = psycopg2.connect(
+        host=host,
+        user=user,
+        password=password,
+        database='postgres'
+    )
+    connection.autocommit = True
+    cursor = connection.cursor()
+    cursor.execute(command)
+    cursor.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if connection:
-            connection.close()
-            print('[INFO] PostgreSQL connection closed')
+    if connection:
+        connection.close()
+        print('[INFO] PostgreSQL connection closed')
 
 
 def create_table():
@@ -56,27 +53,26 @@ def create_table():
         )
         """)
 
-    try:
-        connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name
-        )
-        cursor = connection.cursor()
-        connection.autocommit = True
-        for command in commands:
-            cursor.execute(command)
-        cursor.close()
+    connection = psycopg2.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=db_name
+    )
+    cursor = connection.cursor()
+    connection.autocommit = True
+    for command in commands:
+        cursor.execute(command)
+    cursor.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if connection:
-            connection.close()
-            print('[INFO] PostgreSQL connection closed')
+    if connection:
+        connection.close()
+        print('[INFO] PostgreSQL connection closed')
 
 
 if __name__ == '__main__':
-    create_database()
-    create_table()
+    try:
+        create_database()
+        create_table()
+    except (Exception, psycopg2.DatabaseError):
+        print(sys.exc_info()[0], sys.exc_info()[1])
