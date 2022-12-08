@@ -1,11 +1,17 @@
-from api_geocoder_service import get_response_geocoder, parse_coordination, \
-    Address
+import sys
+from typing import NamedTuple
+
+import psycopg2
+from loguru import logger
+
 from api_distance_matrix_service import get_response_distance_matrix, \
     parse_distance, get_distance_kilometer
-from typing import NamedTuple
+from api_geocoder_service import get_response_geocoder, parse_coordination, \
+    Address
 from config import host, user, password, db_name
-import psycopg2
-import sys
+
+logger.add("log.log", format="{time} {level} {message}",
+           level="DEBUG", rotation="10 MB", compression="zip")
 
 
 class SourceTripData(NamedTuple):
@@ -32,6 +38,7 @@ class TripDataIntoDB(NamedTuple):
     consumption_of_petrol_trip: float
 
 
+@logger.catch
 def main():
     send_data_into_db(get_trip_data_to_sent_into_db(get_source_trip_data()))
 
@@ -79,6 +86,7 @@ def send_data_into_db(trip_data: TripDataIntoDB) -> None:
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
     )
     cursor.execute(command_into_trip, agr_for_command_into_trip)
+    logger.info(f'Trip data({agr_for_command_into_trip[0]}) has been send to the database')
     cursor.close()
     connection.commit()
     if connection:
@@ -99,7 +107,11 @@ def get_trip_data_to_sent_into_db(source_data: SourceTripData) -> TripDataIntoDB
     )
     coordinates_departure = parse_coordination(get_response_geocoder(point_departure))
     coordinates_arrival = parse_coordination(get_response_geocoder(point_arrival))
-
+    logger.info(f"received GPS coordinates - "
+                f"departure latitude:{coordinates_departure.latitude},"
+                f"departure longitude:{coordinates_departure.longitude},"
+                f"arrival latitude:{coordinates_arrival.latitude},"
+                f"arrival longitude:{coordinates_arrival.longitude}")
     km_trip = get_distance_kilometer(parse_distance(get_response_distance_matrix(
         coordinates_departure,
         coordinates_arrival
@@ -148,9 +160,7 @@ if __name__ == "__main__":
     except (Exception, psycopg2.DatabaseError):
         print(sys.exc_info()[0], sys.exc_info()[1])
     except KeyboardInterrupt:
+        logger.error("KeyboardInterrupt")
         print('Run the program again')
-    else:
-        print('Trip data has been send to the database')
-
 
 

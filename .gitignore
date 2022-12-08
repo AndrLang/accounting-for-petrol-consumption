@@ -4,3 +4,4 @@ __pychache__/
 .env
 module_for_test.py
 README.md
+log.log
