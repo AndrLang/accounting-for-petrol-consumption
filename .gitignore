@@ -1,7 +1,8 @@
 /env
-__pychache__/
+__pycache__/
+.idea
 .DS-Store
 .env
 module_for_test.py
-README.md
 log.log
+
