@@ -16,7 +16,7 @@
 `create_db` - создание базы данных  
 `api_geocoder_service` - получение GPS-координат  
 `api_distance_matrix_service` - получение расстояния между точками  
-`config` - конфигурационные файлы
+`config` - конфигурационный файл
 
 
 

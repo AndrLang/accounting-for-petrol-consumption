@@ -5,4 +5,3 @@ __pycache__/
 .env
 module_for_test.py
 log.log
-
