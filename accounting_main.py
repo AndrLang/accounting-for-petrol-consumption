@@ -36,6 +36,7 @@ class TripDataIntoDB(NamedTuple):
     consumption_of_petrol_trip: float
 
 
+@logger.catch
 def main():
     with psycopg2.connect(
             host=host,
@@ -49,7 +50,6 @@ def main():
             send_data_into_db(cursor)
 
 
-@logger.catch
 def send_data_into_db(cursor: psycopg2.extensions.cursor) -> None:
     trip_data_for_db = get_trip_data_for_sent_into_db()
 
