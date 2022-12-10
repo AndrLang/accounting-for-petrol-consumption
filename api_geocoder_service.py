@@ -15,10 +15,9 @@ class Address(NamedTuple):
     house_for_geocoder: str
 
 
-def parse_coordination(response_geocoder_output: dict) -> Coordinates:
-    return Coordinates(
-        latitude=response_geocoder_output['result']['items'][0]['point']['lat'],
-        longitude=response_geocoder_output['result']['items'][0]['point']['lon'])
+def get_coordinates(address: Address) -> Coordinates:
+    geocoder_response = get_response_geocoder(address)
+    return parse_coordinates(geocoder_response)
 
 
 def get_response_geocoder(address: Address) -> dict:
@@ -30,12 +29,19 @@ def get_response_geocoder(address: Address) -> dict:
     return requests.get(url).json()
 
 
+def parse_coordinates(response_geocoder_output: dict) -> Coordinates:
+    return Coordinates(
+        latitude=response_geocoder_output['result']['items'][0]['point']['lat'],
+        longitude=response_geocoder_output['result']['items'][0]['point']['lon'])
+
+
 if __name__ == "__main__":
     try:
-        print(parse_coordination((get_response_geocoder(Address(
+        address = Address(
             city_for_geocoder='Санкт-Петербург',
             street_for_geocoder='Набережная мойки',
-            house_for_geocoder=14
-        )))))
+            house_for_geocoder='14'
+        )
+        print(get_coordinates(address))
     except Exception:
         print(sys.exc_info()[0], sys.exc_info()[1])

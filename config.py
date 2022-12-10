@@ -22,5 +22,3 @@ host = '127.0.0.1'
 user = 'postgres'
 password = os.getenv("POSTGRES")
 db_name = 'petrol_consumption'
-
-
